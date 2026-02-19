@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Protocolo JARVIS iOS Optimizado</title>
+
+<style>
+:root {
+    --accent: #00d4ff;
+    --bg: #0a0a0a;
+    --panel: #1a1a1a;
+    --success: #00ff88;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: white;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.header {
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid #333;
+    width: 100%;
+}
+
+.controls {
+    background: var(--panel);
+    padding: 20px;
+    width: 90%;
+    max-width: 400px;
+    border-radius: 15px;
+    margin: 20px 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 0.8em;
+    color: var(--accent);
+    letter-spacing: 1px;
+}
+
+input[type="file"], input[type="range"] {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+canvas {
+    max-width: 100%;
+    border-radius: 8px;
+    background: #222;
+    border: 1px solid #333;
+}
+
+.btn-action {
+    width: 100%;
+    background: var(--accent);
+    color: #000;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    text-transform: uppercase;
+    transition: 0.3s ease;
+}
+
+.btn-action.ready {
+    background: var(--success);
+    box-shadow: 0 0 15px var(--success);
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<h2 style="margin:0; font-weight:300; letter-spacing:2px;">
+PROTOCOLO <span style="color:var(--accent)">JARVIS</span>
+</h2>
+</div>
+
+<div class="controls">
+<label>1. SELECCIONAR IMAGEN</label>
+<input type="file" id="upload" accept="image/*">
+
+<label>2. GROSOR DEL MARCO: <span id="val">10</span>%</label>
+<input type="range" id="thickness" min="1" max="30" value="10">
+
+<button id="actionBtn" class="btn-action" disabled>Cargar imagen primero</button>
+</div>
+
+<canvas id="canvas"></canvas>
+
+<script>
+const upload = document.getElementById('upload');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const thicknessSlider = document.getElementById('thickness');
+const actionBtn = document.getElementById('actionBtn');
+const valDisplay = document.getElementById('val');
+
+let originalImg = null;
+let isProcessed = false;
+
+upload.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = event => {
+        originalImg = new Image();
+        originalImg.onload = () => {
+            actionBtn.disabled = false;
+            resetButton();
+            drawPreview();
+        };
+        originalImg.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+
+thicknessSlider.addEventListener('input', () => {
+    valDisplay.innerText = thicknessSlider.value;
+    if (originalImg) {
+        resetButton();
+        drawPreview();
+    }
+});
+
+function drawPreview() {
+    const borderPercent = thicknessSlider.value / 100;
+    const borderSize = Math.max(originalImg.width, originalImg.height) * borderPercent;
+
+    canvas.width = originalImg.width + borderSize * 2;
+    canvas.height = originalImg.height + borderSize * 2;
+
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(originalImg, borderSize, borderSize);
+}
+
+actionBtn.addEventListener('click', () => {
+    if (!originalImg) return;
+
+    if (!isProcessed) {
+        drawPreview();
+        isProcessed = true;
+        actionBtn.innerText = "Descargar Resultado";
+        actionBtn.classList.add('ready');
+    } else {
+        // Método compatible con iOS
+        if (canvas.toBlob) {
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                window.open(url, '_blank');
+            }, "image/jpeg", 0.9);
+        } else {
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+            window.open(dataUrl, '_blank');
+        }
+    }
+});
+
+function resetButton() {
+    isProcessed = false;
+    actionBtn.innerText = "Procesar Edición";
+    actionBtn.classList.remove('ready');
+}
+</script>
+
+</body>
+</html>
