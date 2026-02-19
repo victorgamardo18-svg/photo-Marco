@@ -158,18 +158,24 @@ actionBtn.addEventListener('click', () => {
         actionBtn.innerText = "Descargar Resultado";
         actionBtn.classList.add('ready');
     } else {
-        // Método compatible con iOS
-        if (canvas.toBlob) {
-            canvas.toBlob(blob => {
-                const url = URL.createObjectURL(blob);
-                window.open(url, '_blank');
-            }, "image/jpeg", 0.9);
-        } else {
-            const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
-            window.open(dataUrl, '_blank');
-        }
+        descargarImagen();
     }
 });
+
+function descargarImagen() {
+    canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "resultado.jpg";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        URL.revokeObjectURL(url);
+    }, "image/jpeg", 0.9);
+}
 
 function resetButton() {
     isProcessed = false;
