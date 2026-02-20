@@ -5,7 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Photo Frame</title>
+<meta name="apple-mobile-web-app-title" content="Photo Frame">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+
+<title>JARVIS - Photo Frame</title>
 
 <style>
 :root {
@@ -14,9 +18,8 @@
     --panel: rgba(20, 20, 20, 0.95);
     --success: #00ff88;
     --text: #e0e0e0;
-    /* Calibración de las esquinas */
     --corner-size: 25px;
-    --corner-spacing: 50px; /* El doble del tamaño del cuadrado, como solicitó */
+    --corner-spacing: 40px; /* Reducido ligeramente para subir los cuadrados */
 }
 
 html, body {
@@ -39,74 +42,77 @@ body {
     background-size: 100% 100%, 40px 40px, 40px 40px;
 }
 
+/* 1. Header más alto y compacto */
 .header {
     text-align: center;
     letter-spacing: 4px;
-    padding: 50px 0 10px 0;
+    padding: 35px 0 5px 0; /* Subido de 60px a 35px */
     flex-shrink: 0;
 }
 
+/* 2. Controles anclados más arriba */
 .controls-container {
     width: 100%;
     display: flex;
     justify-content: center;
-    padding-bottom: 10px;
+    padding-bottom: 5px; /* Menos espacio inferior */
     flex-shrink: 0;
     z-index: 20;
 }
 
 .controls {
     background: var(--panel);
-    padding: 18px;
+    padding: 15px; /* Más compacto */
     width: 88%;
     max-width: 400px;
-    border-radius: 15px;
+    border-radius: 12px;
     border: 1px solid rgba(0, 212, 255, 0.2);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
 }
 
 label {
     display: block;
-    margin-bottom: 6px;
-    font-size: 0.65rem;
+    margin-bottom: 4px;
+    font-size: 0.6rem;
     color: var(--accent);
     font-weight: 800;
     text-transform: uppercase;
 }
 
-input[type="file"] { margin-bottom: 12px; width: 100%; font-size: 0.75rem; color: #888; }
-input[type="range"] { width: 100%; margin-bottom: 15px; accent-color: var(--accent); }
+input[type="file"] { margin-bottom: 10px; width: 100%; font-size: 0.7rem; color: #888; }
+input[type="range"] { width: 100%; margin-bottom: 10px; accent-color: var(--accent); }
 
+/* 3. Área de visualización ajustada */
 .viewer {
     flex-grow: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    padding: 20px;
-    margin-bottom: 30px;
+    padding: 10px;
+    margin-bottom: 10px;
 }
 
-/* HUD Cuadrados con espaciado calibrado */
 .corners div {
     position: absolute;
     width: var(--corner-size);
     height: var(--corner-size);
     border: 2px solid var(--accent);
-    opacity: 0.6;
+    opacity: 0.4;
 }
 
-/* Ajuste de posición: margen del doble del tamaño del cuadrado */
-.top-left { top: var(--corner-spacing); left: var(--corner-spacing); border-right: none; border-bottom: none; }
-.top-right { top: var(--corner-spacing); right: var(--corner-spacing); border-left: none; border-bottom: none; }
-.bot-left { bottom: var(--corner-spacing); left: var(--corner-spacing); border-right: none; border-top: none; }
-.bot-right { bottom: var(--corner-spacing); right: var(--corner-spacing); border-left: none; border-top: none; }
+/* Esquinas ahora más centradas verticalmente */
+.top-left { top: 20px; left: 20px; border-right: none; border-bottom: none; }
+.top-right { top: 20px; right: 20px; border-left: none; border-bottom: none; }
+.bot-left { bottom: 20px; left: 20px; border-right: none; border-top: none; }
+.bot-right { bottom: 20px; right: 20px; border-left: none; border-top: none; }
 
 .hud-visor {
     position: absolute;
-    width: 220px;
-    height: 220px;
+    width: 180px;
+    height: 180px;
     border: 1px solid rgba(0, 212, 255, 0.1);
     border-radius: 50%;
     display: flex;
@@ -119,19 +125,19 @@ input[type="range"] { width: 100%; margin-bottom: 15px; accent-color: var(--acce
 .hud-visor::after {
     content: "";
     position: absolute;
-    width: 120%;
-    height: 120%;
-    border: 1px dashed rgba(0, 212, 255, 0.08);
+    width: 140%;
+    height: 140%;
+    border: 1px dashed rgba(0, 212, 255, 0.05);
     border-radius: 50%;
-    animation: rotate 20s linear infinite;
+    animation: rotate 30s linear infinite;
 }
 
 canvas {
-    max-width: 80%;
-    max-height: 80%;
+    max-width: 90%;
+    max-height: 90%;
     z-index: 10;
     display: none;
-    box-shadow: 0 0 50px rgba(0,0,0,0.9);
+    box-shadow: 0 0 40px rgba(0,0,0,0.8);
 }
 
 @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -140,12 +146,13 @@ canvas {
     width: 100%;
     background: rgba(0, 212, 255, 0.05);
     color: var(--accent);
-    padding: 14px;
-    border-radius: 10px;
+    padding: 12px;
+    border-radius: 8px;
     font-weight: bold;
     border: 1px solid var(--accent);
     text-transform: uppercase;
     -webkit-tap-highlight-color: transparent;
+    font-size: 0.8rem;
 }
 
 .btn-action.ready { background: var(--success); border-color: var(--success); color: #000; }
@@ -156,18 +163,18 @@ canvas {
 <body>
 
     <div class="header">
-        <h2 style="margin:0; font-weight:300; font-size: 1.2rem; color: white;">PHOTO <span style="color:var(--accent)">FRAME</span></h2>
+        <h2 style="margin:0; font-weight:300; font-size: 1rem; color: white;">PHOTO <span style="color:var(--accent)">FRAME</span></h2>
     </div>
 
     <div class="controls-container">
         <div class="controls">
-            <label>I. Entrada de Datos</label>
+            <label>I. DATA INPUT</label>
             <input type="file" id="upload" accept="image/*">
 
-            <label>II. Grosor: <span id="val">10</span>%</label>
+            <label>II. FRAME THICKNESS: <span id="val">10</span>%</label>
             <input type="range" id="thickness" min="1" max="25" value="10">
 
-            <button id="actionBtn" class="btn-action" disabled>Offline</button>
+            <button id="actionBtn" class="btn-action" disabled>System Ready</button>
         </div>
     </div>
 
@@ -178,7 +185,7 @@ canvas {
         </div>
 
         <div class="hud-visor" id="hudVisor">
-            <div style="color: var(--accent); font-size: 0.6rem; letter-spacing: 2px; opacity: 0.5;">READY TO SCAN</div>
+            <div style="color: var(--accent); font-size: 0.5rem; letter-spacing: 3px; opacity: 0.4;">SCANNING...</div>
         </div>
 
         <canvas id="canvas"></canvas>
@@ -232,8 +239,9 @@ function renderSystem() {
 
 actionBtn.addEventListener('click', () => {
     if (!originalImg) return;
-    actionBtn.innerText = "PROCESANDO...";
+    actionBtn.innerText = "PROCESSING...";
     actionBtn.disabled = true;
+    
     canvas.toBlob(blob => {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -242,6 +250,7 @@ actionBtn.addEventListener('click', () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        
         setTimeout(() => {
             URL.revokeObjectURL(url);
             actionBtn.innerText = "Descargar";
