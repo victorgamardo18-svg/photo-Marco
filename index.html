@@ -3,13 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>JARVIS - Photo Frame</title>
 
 <style>
 :root {
     --accent: #00d4ff;
     --bg: #050505;
-    --panel: rgba(18, 18, 18, 0.9);
+    --panel: rgba(20, 20, 20, 0.95);
     --success: #00ff88;
     --text: #e0e0e0;
 }
@@ -21,64 +23,63 @@ html, body {
     width: 100vw;
     overflow: hidden;
     background: var(--bg);
-    font-family: 'Segoe UI', Roboto, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color: var(--text);
 }
 
 body {
     display: flex;
     flex-direction: column;
-    /* Fondo con rejilla tecnológica sutil */
     background-image: 
         radial-gradient(circle at 50% 50%, rgba(0, 212, 255, 0.05) 0%, transparent 70%),
-        linear-gradient(rgba(0, 212, 255, 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 212, 255, 0.02) 1px, transparent 1px);
-    background-size: 100% 100%, 30px 30px, 30px 30px;
+        linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+    background-size: 100% 100%, 40px 40px, 40px 40px;
 }
 
 /* Header */
 .header {
     text-align: center;
     letter-spacing: 4px;
-    padding: 25px 0 10px 0;
+    padding: 40px 0 10px 0; /* Espacio para el notch del iPhone */
     flex-shrink: 0;
-    z-index: 10;
 }
 
-/* Controles arriba */
+/* Contenedor de Controles - Siempre arriba */
 .controls-container {
     width: 100%;
     display: flex;
     justify-content: center;
-    padding-bottom: 20px;
+    padding-bottom: 10px;
     flex-shrink: 0;
-    z-index: 10;
+    z-index: 20;
 }
 
 .controls {
     background: var(--panel);
-    padding: 20px;
-    width: 85%;
-    max-width: 380px;
-    border-radius: 12px;
-    border: 1px solid rgba(0, 212, 255, 0.3);
-    box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
-    backdrop-filter: blur(10px);
+    padding: 18px;
+    width: 88%;
+    max-width: 400px;
+    border-radius: 15px;
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
 }
 
 label {
     display: block;
-    margin-bottom: 8px;
-    font-size: 0.7rem;
+    margin-bottom: 6px;
+    font-size: 0.65rem;
     color: var(--accent);
-    font-weight: bold;
+    font-weight: 800;
     text-transform: uppercase;
 }
 
-input[type="file"] { margin-bottom: 15px; width: 100%; font-size: 0.8rem; }
+input[type="file"] { margin-bottom: 12px; width: 100%; font-size: 0.75rem; color: #888; }
 input[type="range"] { width: 100%; margin-bottom: 15px; accent-color: var(--accent); }
 
-/* Área del Visor / Canvas */
+/* Área de Visualización */
 .viewer {
     flex-grow: 1;
     display: flex;
@@ -86,118 +87,103 @@ input[type="range"] { width: 100%; margin-bottom: 15px; accent-color: var(--acce
     justify-content: center;
     position: relative;
     padding: 20px;
-    overflow: hidden;
+    margin-bottom: 20px;
 }
 
-/* El Visor estilo Cámara (Solo visible si no hay imagen) */
+/* HUD Visor de espera */
 .hud-visor {
     position: absolute;
-    width: 280px;
-    height: 280px;
-    border: 2px solid rgba(0, 212, 255, 0.2);
+    width: 240px;
+    height: 240px;
+    border: 1px solid rgba(0, 212, 255, 0.15);
     border-radius: 50%;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: opacity 0.5s ease;
-}
-
-.hud-visor::before {
-    content: "PHOTO";
-    position: absolute;
-    font-size: 0.6rem;
-    letter-spacing: 5px;
-    top: -20px;
-    color: var(--accent);
+    transition: opacity 0.4s ease;
 }
 
 .hud-visor::after {
     content: "";
     position: absolute;
-    width: 110%;
-    height: 110%;
+    width: 115%;
+    height: 115%;
     border: 1px dashed rgba(0, 212, 255, 0.1);
     border-radius: 50%;
-    animation: rotate 10s linear infinite;
-}
-
-.corners {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0; left: 0;
-    pointer-events: none;
+    animation: rotate 15s linear infinite;
 }
 
 .corners div {
     position: absolute;
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
     border: 2px solid var(--accent);
+    opacity: 0.6;
 }
-
-/* Esquinas del visor */
-.top-left { top: 10%; left: 10%; border-right: none; border-bottom: none; }
-.top-right { top: 10%; right: 10%; border-left: none; border-bottom: none; }
-.bot-left { bottom: 10%; left: 10%; border-right: none; border-top: none; }
-.bot-right { bottom: 10%; right: 10%; border-left: none; border-top: none; }
+.top-left { top: 5%; left: 5%; border-right: none; border-bottom: none; }
+.top-right { top: 5%; right: 5%; border-left: none; border-bottom: none; }
+.bot-left { bottom: 5%; left: 5%; border-right: none; border-top: none; }
+.bot-right { bottom: 5%; right: 5%; border-left: none; border-top: none; }
 
 canvas {
     max-width: 100%;
     max-height: 100%;
-    z-index: 5;
-    display: none; /* Oculto hasta que haya imagen */
-    box-shadow: 0 0 40px rgba(0,0,0,0.8);
+    z-index: 10;
+    display: none;
+    box-shadow: 0 0 50px rgba(0,0,0,0.9);
+    border: 1px solid rgba(255,255,255,0.1);
 }
 
 @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
 .btn-action {
     width: 100%;
-    background: rgba(0, 212, 255, 0.1);
+    background: rgba(0, 212, 255, 0.05);
     color: var(--accent);
-    padding: 12px;
-    border-radius: 6px;
+    padding: 14px;
+    border-radius: 10px;
     font-weight: bold;
     cursor: pointer;
     border: 1px solid var(--accent);
     text-transform: uppercase;
-    transition: 0.3s;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .btn-action.ready { background: var(--success); border-color: var(--success); color: #000; }
-.btn-action:disabled { opacity: 0.3; }
+.btn-action:active { transform: scale(0.98); opacity: 0.8; }
+.btn-action:disabled { opacity: 0.2; }
 </style>
 </head>
 
 <body>
 
     <div class="header">
-        <h2 style="margin:0; font-weight:300;">Photo <span style="color:var(--accent)">Frame</span></h2>
+        <h2 style="margin:0; font-weight:300; font-size: 1.2rem;">PHOTO <span style="color:var(--accent)">FRAME</span></h2>
     </div>
 
     <div class="controls-container">
         <div class="controls">
-            <label>I. Entrada de Datos</label>
+            <label>I. Cargar Archivo</label>
             <input type="file" id="upload" accept="image/*">
 
-            <label>II. Grosor de Marco: <span id="val">10</span>%</label>
+            <label>II. Escala del Marco: <span id="val">10</span>%</label>
             <input type="range" id="thickness" min="1" max="25" value="10">
 
-            <button id="actionBtn" class="btn-action" disabled>Sistema Offline</button>
+            <button id="actionBtn" class="btn-action" disabled>Sistema en Espera</button>
         </div>
     </div>
 
-    <div class="viewer" id="viewerContainer">
+    <div class="viewer">
         <div class="corners">
-            <div class="top-left"></div>
-            <div class="top-right"></div>
-            <div class="bot-left"></div>
-            <div class="bot-right"></div>
+            <div class="top-left"></div><div class="top-right"></div>
+            <div class="bot-left"></div><div class="bot-right"></div>
         </div>
 
         <div class="hud-visor" id="hudVisor">
-            <div style="color: var(--accent); font-size: 0.7rem; opacity: 0.5;">WAITING...</div>
+            <div style="color: var(--accent); font-size: 0.6rem; letter-spacing: 2px; margin-bottom: 5px;">SCANNER ACTIVE</div>
+            <div style="width: 40px; height: 1px; background: var(--accent); opacity: 0.5;"></div>
         </div>
 
         <canvas id="canvas"></canvas>
@@ -206,7 +192,7 @@ canvas {
 <script>
 const upload = document.getElementById('upload');
 const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+const ctx = canvas.getContext('2d', { alpha: false }); // Optimización de contexto
 const thicknessSlider = document.getElementById('thickness');
 const actionBtn = document.getElementById('actionBtn');
 const valDisplay = document.getElementById('val');
@@ -223,13 +209,11 @@ upload.addEventListener('change', e => {
         originalImg = new Image();
         originalImg.onload = () => {
             actionBtn.disabled = false;
-            actionBtn.innerText = "Descargar PNG";
+            actionBtn.innerText = "Descargar Imagen";
             actionBtn.classList.add('ready');
             
-            // Cambiar HUD por Canvas
             hudVisor.style.opacity = "0";
             canvas.style.display = "block";
-            
             renderSystem();
         };
         originalImg.src = event.target.result;
@@ -244,11 +228,12 @@ thicknessSlider.addEventListener('input', () => {
 
 function renderSystem() {
     const minDim = Math.min(originalImg.width, originalImg.height);
-    const borderSize = minDim * (thicknessSlider.value / 100);
+    const borderSize = Math.floor(minDim * (thicknessSlider.value / 100));
 
     canvas.width = originalImg.width + (borderSize * 2);
     canvas.height = originalImg.height + (borderSize * 2);
 
+    // Renderizado eficiente
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(originalImg, borderSize, borderSize);
@@ -256,10 +241,27 @@ function renderSystem() {
 
 actionBtn.addEventListener('click', () => {
     if (!originalImg) return;
-    const link = document.createElement('a');
-    link.download = `STARK_SCAN_${Date.now()}.png`;
-    link.href = canvas.toDataURL('image/png', 1.0);
-    link.click();
+
+    actionBtn.innerText = "PROCESANDO...";
+    actionBtn.disabled = true;
+
+    // Protocolo de descarga de baja latencia (Blob)
+    canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = `PHOTO_FRAME_${Date.now()}.png`;
+        link.href = url;
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setTimeout(() => {
+            URL.revokeObjectURL(url);
+            actionBtn.innerText = "Descargar Imagen";
+            actionBtn.disabled = false;
+        }, 150);
+    }, 'image/png');
 });
 </script>
 
