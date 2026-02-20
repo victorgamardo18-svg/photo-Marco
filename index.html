@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Protocolo JARVIS iOS Optimizado</title>
+<title>Photo Frame</title>
 
 <style>
 :root {
@@ -13,37 +13,45 @@
     --success: #00ff88;
 }
 
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden; /* Evita scroll */
+}
+
 body {
     font-family: 'Segoe UI', Roboto, sans-serif;
     background: var(--bg);
     color: white;
-    margin: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-between;
     min-height: 100vh;
 }
 
 .header {
-    padding: 20px;
+    padding: 15px;
     text-align: center;
     border-bottom: 1px solid #333;
     width: 100%;
+    flex-shrink: 0;
 }
 
 .controls {
     background: var(--panel);
-    padding: 20px;
+    padding: 15px;
     width: 90%;
     max-width: 400px;
     border-radius: 15px;
-    margin: 20px 0;
     box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    flex-shrink: 0;
 }
 
 label {
     display: block;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     font-size: 0.8em;
     color: var(--accent);
     letter-spacing: 1px;
@@ -51,21 +59,23 @@ label {
 
 input[type="file"], input[type="range"] {
     width: 100%;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 canvas {
-    max-width: 100%;
-    border-radius: 8px;
     background: #222;
     border: 1px solid #333;
+    border-radius: 8px;
+    max-width: 90%;
+    max-height: 60vh;
+    display: block;
 }
 
 .btn-action {
     width: 100%;
     background: var(--accent);
     color: #000;
-    padding: 15px;
+    padding: 12px;
     border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
@@ -85,7 +95,7 @@ canvas {
 
 <div class="header">
 <h2 style="margin:0; font-weight:300; letter-spacing:2px;">
-PROTOCOLO <span style="color:var(--accent)">JARVIS</span>
+PHOTO <span style="color:var(--accent)">FRAME</span>
 </h2>
 </div>
 
@@ -139,14 +149,28 @@ thicknessSlider.addEventListener('input', () => {
 
 function drawPreview() {
     const borderPercent = thicknessSlider.value / 100;
-    const borderSize = Math.max(originalImg.width, originalImg.height) * borderPercent;
 
-    canvas.width = originalImg.width + borderSize * 2;
-    canvas.height = originalImg.height + borderSize * 2;
+    // Borde proporcional limitado a min 5px y max 50px
+    const borderSize = Math.min(Math.max(Math.max(originalImg.width, originalImg.height) * borderPercent, 5), 50);
+
+    // Ajuste dinámico para que todo quepa en la pantalla
+    const maxCanvasWidth = window.innerWidth * 0.9;
+    const maxCanvasHeight = window.innerHeight * 0.6;
+
+    let canvasWidth = originalImg.width + borderSize * 2;
+    let canvasHeight = originalImg.height + borderSize * 2;
+
+    // Escalado proporcional si es demasiado grande
+    const scale = Math.min(1, maxCanvasWidth / canvasWidth, maxCanvasHeight / canvasHeight);
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
 
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(originalImg, borderSize, borderSize);
+
+    canvas.style.width = canvas.width * scale + "px";
+    canvas.style.height = canvas.height * scale + "px";
 }
 
 actionBtn.addEventListener('click', () => {
@@ -155,7 +179,7 @@ actionBtn.addEventListener('click', () => {
     if (!isProcessed) {
         drawPreview();
         isProcessed = true;
-        actionBtn.innerText = "Descargar Resultado";
+        actionBtn.innerText = "Descargar Imagen";
         actionBtn.classList.add('ready');
     } else {
         descargarImagen();
@@ -165,21 +189,19 @@ actionBtn.addEventListener('click', () => {
 function descargarImagen() {
     canvas.toBlob(blob => {
         const url = URL.createObjectURL(blob);
-
         const a = document.createElement('a');
         a.href = url;
-        a.download = "resultado.jpg";
+        a.download = "resultado.png";
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-
         URL.revokeObjectURL(url);
-    }, "image/jpeg", 0.9);
+    }, "image/png");
 }
 
 function resetButton() {
     isProcessed = false;
-    actionBtn.innerText = "Procesar Edición";
+    actionBtn.innerText = "Procesar Imagen";
     actionBtn.classList.remove('ready');
 }
 </script>
