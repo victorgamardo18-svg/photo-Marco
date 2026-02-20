@@ -17,7 +17,7 @@ html, body {
     margin: 0;
     padding: 0;
     height: 100%;
-    overflow: hidden; /* Evita scroll */
+    overflow: hidden;
 }
 
 body {
@@ -64,11 +64,11 @@ input[type="file"], input[type="range"] {
 
 canvas {
     background: #222;
-    border: 1px solid #333;
     border-radius: 8px;
     max-width: 90%;
     max-height: 60vh;
     display: block;
+    margin-bottom: 15px;
 }
 
 .btn-action {
@@ -149,24 +149,33 @@ thicknessSlider.addEventListener('input', () => {
 
 function drawPreview() {
     const borderPercent = thicknessSlider.value / 100;
+    const borderSize = Math.max(originalImg.width, originalImg.height) * borderPercent;
 
-    // Borde proporcional limitado a min 5px y max 50px
-    const borderSize = Math.min(Math.max(Math.max(originalImg.width, originalImg.height) * borderPercent, 5), 50);
-
-    // Ajuste dinámico para que todo quepa en la pantalla
     const maxCanvasWidth = window.innerWidth * 0.9;
     const maxCanvasHeight = window.innerHeight * 0.6;
 
-    let canvasWidth = originalImg.width + borderSize * 2;
-    let canvasHeight = originalImg.height + borderSize * 2;
+    const canvasWidth = originalImg.width + borderSize * 2;
+    const canvasHeight = originalImg.height + borderSize * 2;
 
-    // Escalado proporcional si es demasiado grande
     const scale = Math.min(1, maxCanvasWidth / canvasWidth, maxCanvasHeight / canvasHeight);
+
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
 
+    // Fondo blanco
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Efecto JARVIS: resplandor alrededor del borde
+    const glowColor = 'rgba(0,212,255,0.7)';
+    ctx.save();
+    ctx.shadowBlur = borderSize / 2;
+    ctx.shadowColor = glowColor;
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(borderSize, borderSize, originalImg.width, originalImg.height);
+    ctx.restore();
+
+    // Imagen
     ctx.drawImage(originalImg, borderSize, borderSize);
 
     canvas.style.width = canvas.width * scale + "px";
