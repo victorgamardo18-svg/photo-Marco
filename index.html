@@ -1,264 +1,317 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Photo Frame">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link rel="manifest" href="manifest.json">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AETHER Frame">
+    <title>AETHER - Sistema de Enmarcado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --aether-glow: #10b981;
+            --aether-dark: #050a0a;
+            --aether-panel: rgba(6, 15, 12, 0.95);
+        }
 
-<title>JARVIS - Photo Frame</title>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
 
-<style>
-:root {
-    --accent: #00d4ff;
-    --bg: #050505;
-    --panel: rgba(20, 20, 20, 0.95);
-    --success: #00ff88;
-    --text: #e0e0e0;
-    --corner-size: 25px;
-    --corner-spacing: 40px; /* Reducido ligeramente para subir los cuadrados */
-}
+        body {
+            background-color: var(--aether-dark);
+            color: #ecfdf5;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            height: 100dvh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            /* Fondo con rejilla más visible y gradiente reforzado */
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.12) 0%, transparent 70%),
+                linear-gradient(rgba(16, 185, 129, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+        }
 
-html, body {
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-    width: 100vw;
-    overflow: hidden;
-    background: var(--bg);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
+        .glow-text {
+            text-shadow: 0 0 15px rgba(16, 185, 129, 0.8);
+        }
 
-body {
-    display: flex;
-    flex-direction: column;
-    background-image: 
-        radial-gradient(circle at 50% 50%, rgba(0, 212, 255, 0.05) 0%, transparent 70%),
-        linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
-    background-size: 100% 100%, 40px 40px, 40px 40px;
-}
+        .glass-panel {
+            background: var(--aether-panel);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            box-shadow: 0 -10px 50px rgba(0, 0, 0, 0.6);
+        }
 
-/* 1. Header más alto y compacto */
-.header {
-    text-align: center;
-    letter-spacing: 4px;
-    padding: 35px 0 5px 0; /* Subido de 60px a 35px */
-    flex-shrink: 0;
-}
+        input[type="range"] {
+            accent-color: var(--aether-glow);
+            background: rgba(16, 185, 129, 0.15);
+            height: 6px;
+            border-radius: 3px;
+            appearance: none;
+        }
 
-/* 2. Controles anclados más arriba */
-.controls-container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    padding-bottom: 5px; /* Menos espacio inferior */
-    flex-shrink: 0;
-    z-index: 20;
-}
+        .viewer {
+            flex-grow: 1;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 20px;
+            overflow: hidden;
+        }
 
-.controls {
-    background: var(--panel);
-    padding: 15px; /* Más compacto */
-    width: 88%;
-    max-width: 400px;
-    border-radius: 12px;
-    border: 1px solid rgba(0, 212, 255, 0.2);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-}
+        /* Esquinas HUD reforzadas */
+        .corners div {
+            position: absolute;
+            width: 35px;
+            height: 35px;
+            border: 2px solid var(--aether-glow);
+            opacity: 0.6;
+            filter: drop-shadow(0 0 5px var(--aether-glow));
+        }
+        .top-left { top: 20px; left: 20px; border-right: none; border-bottom: none; }
+        .top-right { top: 20px; right: 20px; border-left: none; border-bottom: none; }
+        .bot-left { bottom: 20px; left: 20px; border-right: none; border-top: none; }
+        .bot-right { bottom: 20px; right: 20px; border-left: none; border-top: none; }
 
-label {
-    display: block;
-    margin-bottom: 4px;
-    font-size: 0.6rem;
-    color: var(--accent);
-    font-weight: 800;
-    text-transform: uppercase;
-}
+        /* HUD Visor con mayor visibilidad */
+        .hud-visor {
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            border: 2px solid rgba(16, 185, 129, 0.4);
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 75%);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.5s ease;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.1), inset 0 0 20px rgba(16, 185, 129, 0.1);
+        }
 
-input[type="file"] { margin-bottom: 10px; width: 100%; font-size: 0.7rem; color: #888; }
-input[type="range"] { width: 100%; margin-bottom: 10px; accent-color: var(--accent); }
+        .hud-visor::before {
+            content: "";
+            position: absolute;
+            width: 110%;
+            height: 110%;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 50%;
+            border-style: double;
+        }
 
-/* 3. Área de visualización ajustada */
-.viewer {
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    padding: 10px;
-    margin-bottom: 10px;
-}
+        .hud-visor::after {
+            content: "";
+            position: absolute;
+            width: 140%;
+            height: 140%;
+            border: 1px dashed rgba(16, 185, 129, 0.3);
+            border-radius: 50%;
+            animation: rotate 30s linear infinite;
+        }
 
-.corners div {
-    position: absolute;
-    width: var(--corner-size);
-    height: var(--corner-size);
-    border: 2px solid var(--accent);
-    opacity: 0.4;
-}
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-/* Esquinas ahora más centradas verticalmente */
-.top-left { top: 20px; left: 20px; border-right: none; border-bottom: none; }
-.top-right { top: 20px; right: 20px; border-left: none; border-bottom: none; }
-.bot-left { bottom: 20px; left: 20px; border-right: none; border-top: none; }
-.bot-right { bottom: 20px; right: 20px; border-left: none; border-top: none; }
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            z-index: 10;
+            display: none;
+            box-shadow: 0 0 60px rgba(0,0,0,0.9);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
 
-.hud-visor {
-    position: absolute;
-    width: 180px;
-    height: 180px;
-    border: 1px solid rgba(0, 212, 255, 0.1);
-    border-radius: 50%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.4s ease;
-}
+        .btn-aether {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
 
-.hud-visor::after {
-    content: "";
-    position: absolute;
-    width: 140%;
-    height: 140%;
-    border: 1px dashed rgba(0, 212, 255, 0.05);
-    border-radius: 50%;
-    animation: rotate 30s linear infinite;
-}
+        #upload { display: none; }
+        
+        .custom-upload {
+            cursor: pointer;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            background: rgba(16, 185, 129, 0.08);
+            box-shadow: inset 0 0 10px rgba(16, 185, 129, 0.05);
+        }
 
-canvas {
-    max-width: 90%;
-    max-height: 90%;
-    z-index: 10;
-    display: none;
-    box-shadow: 0 0 40px rgba(0,0,0,0.8);
-}
-
-@keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-.btn-action {
-    width: 100%;
-    background: rgba(0, 212, 255, 0.05);
-    color: var(--accent);
-    padding: 12px;
-    border-radius: 8px;
-    font-weight: bold;
-    border: 1px solid var(--accent);
-    text-transform: uppercase;
-    -webkit-tap-highlight-color: transparent;
-    font-size: 0.8rem;
-}
-
-.btn-action.ready { background: var(--success); border-color: var(--success); color: #000; }
-.btn-action:disabled { opacity: 0.2; }
-</style>
+        header { padding-top: env(safe-area-inset-top, 20px); }
+        footer { padding-bottom: env(safe-area-inset-bottom, 10px); }
+    </style>
 </head>
+<body class="flex flex-col">
 
-<body>
-
-    <div class="header">
-        <h2 style="margin:0; font-weight:300; font-size: 1rem; color: white;">PHOTO <span style="color:var(--accent)">FRAME</span></h2>
-    </div>
-
-    <div class="controls-container">
-        <div class="controls">
-            <label>I. DATA INPUT</label>
-            <input type="file" id="upload" accept="image/*">
-
-            <label>II. FRAME THICKNESS: <span id="val">10</span>%</label>
-            <input type="range" id="thickness" min="1" max="25" value="10">
-
-            <button id="actionBtn" class="btn-action" disabled>System Ready</button>
+    <!-- Cabecera -->
+    <header class="w-full px-6 pt-8 pb-4 flex justify-between items-center border-b border-emerald-500/20 bg-emerald-950/10">
+        <div>
+            <h1 class="text-2xl font-black text-emerald-400 glow-text italic tracking-tighter uppercase">AETHER</h1>
+            <p class="text-[8px] text-emerald-500 font-bold uppercase tracking-[0.3em]">Interfaz de Edición</p>
         </div>
-    </div>
+        <div class="text-right">
+            <p class="text-[10px] text-emerald-400 font-mono animate-pulse" id="statusText">MODO ESPERA</p>
+            <p class="text-[8px] text-emerald-800 font-bold uppercase">Victor // Admin</p>
+        </div>
+    </header>
 
-    <div class="viewer">
+    <!-- Área de Visualización -->
+    <main class="viewer">
         <div class="corners">
             <div class="top-left"></div><div class="top-right"></div>
             <div class="bot-left"></div><div class="bot-right"></div>
         </div>
 
         <div class="hud-visor" id="hudVisor">
-            <div style="color: var(--accent); font-size: 0.5rem; letter-spacing: 3px; opacity: 0.4;">SCANNING...</div>
+            <div class="text-emerald-400 text-[10px] font-mono tracking-[5px] animate-pulse font-black">INICIAR ESCANEO</div>
+            <div class="w-12 h-[2px] bg-emerald-500/40 mt-3 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+            <div class="text-[7px] text-emerald-600 mt-2 font-bold tracking-widest uppercase">Esperando Archivo</div>
         </div>
 
         <canvas id="canvas"></canvas>
-    </div>
+    </main>
+
+    <!-- Panel Dock Inferior -->
+    <section class="w-full px-4 pb-6 z-20">
+        <div class="glass-panel p-6 rounded-[2.5rem]">
+            <div class="space-y-5">
+                <!-- Selector de Archivo -->
+                <div class="flex gap-3">
+                    <label for="upload" class="custom-upload flex-1 flex items-center justify-center py-4 px-4 rounded-2xl text-emerald-300 text-[11px] font-bold overflow-hidden whitespace-nowrap text-center transition-all active:scale-95">
+                        <span id="fileName">SUBIR MATRIZ DE IMAGEN</span>
+                    </label>
+                    <input type="file" id="upload" accept="image/*">
+                </div>
+
+                <!-- Control de Grosor -->
+                <div class="px-2">
+                    <div class="flex justify-between items-center mb-3">
+                        <label class="text-[10px] font-black text-emerald-500 uppercase tracking-widest italic">Margen de Matriz</label>
+                        <span class="text-[11px] font-mono text-emerald-300 bg-emerald-900/30 px-2 py-0.5 rounded border border-emerald-500/20" id="val">10%</span>
+                    </div>
+                    <input type="range" id="thickness" min="1" max="25" value="10" class="w-full">
+                </div>
+
+                <!-- Botón de Acción -->
+                <button id="actionBtn" class="btn-aether w-full py-4 rounded-2xl font-black text-[12px] bg-emerald-900/40 border border-emerald-500/10 text-emerald-900 opacity-40 cursor-not-allowed uppercase" disabled>
+                    Sistema Bloqueado
+                </button>
+            </div>
+        </div>
+        
+        <footer class="text-center text-[7px] text-emerald-800 font-bold uppercase tracking-[0.5em] mt-4">
+            AETHER Core v2.6.0 // Protocolo de Enmarcado // Victor
+        </footer>
+    </section>
 
 <script>
-const upload = document.getElementById('upload');
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d', { alpha: false });
-const thicknessSlider = document.getElementById('thickness');
-const actionBtn = document.getElementById('actionBtn');
-const valDisplay = document.getElementById('val');
-const hudVisor = document.getElementById('hudVisor');
+    const upload = document.getElementById('upload');
+    const fileName = document.getElementById('fileName');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d', { alpha: false });
+    const thicknessSlider = document.getElementById('thickness');
+    const actionBtn = document.getElementById('actionBtn');
+    const valDisplay = document.getElementById('val');
+    const hudVisor = document.getElementById('hudVisor');
+    const statusText = document.getElementById('statusText');
 
-let originalImg = null;
+    let originalImg = null;
 
-upload.addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = event => {
-        originalImg = new Image();
-        originalImg.onload = () => {
+    function updateAetherUI(msg, isReady = false) {
+        statusText.innerText = msg.toUpperCase();
+        if(isReady) {
             actionBtn.disabled = false;
-            actionBtn.innerText = "Descargar";
-            actionBtn.classList.add('ready');
-            hudVisor.style.opacity = "0";
-            canvas.style.display = "block";
-            renderSystem();
+            actionBtn.classList.remove('opacity-40', 'cursor-not-allowed', 'bg-emerald-900/40', 'text-emerald-900');
+            actionBtn.classList.add('bg-emerald-500', 'text-black', 'shadow-[0_0_30px_rgba(16,185,129,0.4)]', 'border-none');
+            actionBtn.innerText = "PROCESAR EXPORTACIÓN";
+        }
+    }
+
+    upload.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        fileName.innerText = file.name.toUpperCase();
+        const reader = new FileReader();
+        reader.onload = event => {
+            originalImg = new Image();
+            originalImg.onload = () => {
+                updateAetherUI("Enlace Establecido", true);
+                hudVisor.style.opacity = "0";
+                hudVisor.style.transform = "scale(0.8)";
+                setTimeout(() => {
+                    hudVisor.style.display = "none";
+                    canvas.style.display = "block";
+                    processAetherFrame();
+                }, 500);
+            };
+            originalImg.src = event.target.result;
         };
-        originalImg.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
-});
+        reader.readAsDataURL(file);
+    });
 
-thicknessSlider.addEventListener('input', () => {
-    valDisplay.innerText = thicknessSlider.value;
-    if (originalImg) renderSystem();
-});
+    thicknessSlider.addEventListener('input', () => {
+        valDisplay.innerText = thicknessSlider.value + "%";
+        if (originalImg) processAetherFrame();
+    });
 
-function renderSystem() {
-    const minDim = Math.min(originalImg.width, originalImg.height);
-    const borderSize = Math.floor(minDim * (thicknessSlider.value / 100));
-    canvas.width = originalImg.width + (borderSize * 2);
-    canvas.height = originalImg.height + (borderSize * 2);
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(originalImg, borderSize, borderSize);
-}
-
-actionBtn.addEventListener('click', () => {
-    if (!originalImg) return;
-    actionBtn.innerText = "PROCESSING...";
-    actionBtn.disabled = true;
-    
-    canvas.toBlob(blob => {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.download = `STARK_PHOTO_${Date.now()}.png`;
-        link.href = url;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    function processAetherFrame() {
+        const minDim = Math.min(originalImg.width, originalImg.height);
+        const borderSize = Math.floor(minDim * (thicknessSlider.value / 100));
         
-        setTimeout(() => {
-            URL.revokeObjectURL(url);
-            actionBtn.innerText = "Descargar";
-            actionBtn.disabled = false;
-        }, 150);
-    }, 'image/png');
-});
+        canvas.width = originalImg.width + (borderSize * 2);
+        canvas.height = originalImg.height + (borderSize * 2);
+        
+        // Renderizado con fondo blanco puro
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(originalImg, borderSize, borderSize);
+    }
+
+    actionBtn.addEventListener('click', () => {
+        if (!originalImg) return;
+        
+        const currentLabel = actionBtn.innerText;
+        actionBtn.innerText = "TRANSFIRIENDO...";
+        actionBtn.disabled = true;
+        
+        canvas.toBlob(blob => {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = `AETHER_GRID_${Date.now()}.png`;
+            link.href = url;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+                actionBtn.innerText = "PROCESAR EXPORTACIÓN";
+                actionBtn.disabled = false;
+                updateAetherUI("Operación Exitosa", true);
+            }, 800);
+        }, 'image/png');
+    });
+
+    // Control de gestos para mantener la interfaz estática
+    document.addEventListener('touchmove', function(e) {
+        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'LABEL' && e.target.id !== 'thickness') {
+            e.preventDefault();
+        }
+    }, { passive: false });
 </script>
 
 </body>
 </html>
+
