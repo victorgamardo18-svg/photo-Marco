@@ -1,0 +1,26 @@
+{
+  "short_name": "AETHER",
+  "name": "AETHER - Sistema de Enmarcado",
+  "description": "Protocolo avanzado de procesamiento de matrices de imagen.",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "display": "standalone",
+  "display_override": ["fullscreen", "minimal-ui"],
+  "theme_color": "#050a0a",
+  "background_color": "#050a0a",
+  "orientation": "portrait",
+  "scope": "/"
+}
