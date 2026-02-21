@@ -4,7 +4,7 @@
   "description": "Protocolo avanzado de procesamiento de matrices de imagen.",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "icon.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"
